@@ -1,0 +1,35 @@
+services:
+  backend:
+    build: ./backend
+    container_name: smda-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://smda_user:smda_pass@db:5432/smda_db
+      - REDIS_URL=redis://cache:6379/0
+    depends_on:
+      - db
+      - cache
+    volumes:
+      - ./backend/app:/app/app
+
+  db:
+    image: postgres:16-alpine
+    container_name: smda-db
+    environment:
+      - POSTGRES_USER=smda_user
+      - POSTGRES_PASSWORD=smda_pass
+      - POSTGRES_DB=smda_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - smda_db_data:/var/lib/postgresql/data
+
+  cache:
+    image: redis:7-alpine
+    container_name: smda-cache
+    ports:
+      - "6379:6379"
+
+volumes:
+  smda_db_data:
